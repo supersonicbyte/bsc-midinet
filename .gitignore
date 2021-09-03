@@ -1,0 +1,6 @@
+maestro/
+midi/
+__pycache__/
+midi_processed_x.npy
+midi_processed_x_prev.npy
+sample.mid
