@@ -69,7 +69,7 @@ def sample():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")    
     netG = Generator(nz=NZ)
     netG.load_state_dict(torch.load("./checkpoint/generator.pth"))
-    x_prev = load_data("./processed_x_prev.npy")
+    x_prev = load_data("./" + PROCESSED_DATA_PREFIX + "processed_x_prev.npy")
     random_sample_index = randrange(x_prev.shape[0] // BATCH_SIZE)
     priming_melody = torch.from_numpy(x_prev[random_sample_index:random_sample_index + NUMBER_OF_PRIMING_BARS])
     priming_melody = priming_melody.type(torch.FloatTensor)

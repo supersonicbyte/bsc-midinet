@@ -153,6 +153,7 @@ def train(netD, netG, optimizerG, optimizerD, data_loader, epochs, criterion, nz
             netD.zero_grad()
             batch_size = X.size(0)
             output_real, logits_real, fm = netD(X)
+            fm_r = fm.clone()
             real_label = torch.ones_like(logits_real) * 0.9 
             errD_real = reduce_mean(criterion(logits_real,real_label))
             D_x = output_real.mean().item()
@@ -176,9 +177,9 @@ def train(netD, netG, optimizerG, optimizerD, data_loader, epochs, criterion, nz
             # Update G n_g_train times to make Discriminator weaker
             ###########################
             for _ in range(0,n_g_train):
-                _,_,fm_r = netD(X)
+                noise = torch.rand(batch_size, nz, device=device)
+                fake = netG(noise, X_prev)
                 optimizerG.zero_grad()
-                fake = netG(noise,X_prev)
                 output, logits, fm_ = netD(fake)
                 D_G_z2 = output.mean().item()
                 real_label = torch.ones_like(logits)
@@ -189,16 +190,16 @@ def train(netD, netG, optimizerG, optimizerD, data_loader, epochs, criterion, nz
                 g_loss_image = l2_loss(mean_fake_image, mean_real_image)
                 g_loss_image = torch.mul(g_loss_image, lamda1)
                 # Feature matching based on first convolution output
-                mean_fm_real = torch.mean(fm_r,0)
+                mean_fm_real = torch.mean(fm,0)
                 mean_fm_fake = torch.mean(fm_,0)
                 g_loss_fm = l2_loss(mean_fm_fake, mean_fm_real)
                 g_loss_fm = torch.mul(g_loss_fm, lamda2)
                 # Compute error of G as sum of criterion loss and feature matching loss
-                errG = g_loss_fake + g_loss_image + g_loss_fm
-                errG.backward(retain_graph=True)
+                errG = g_loss_fake + g_loss_image + g_loss_fm  
+                errG.backward(retain_graph=True,inputs=list(netG.parameters()))
                 # Update G
                 optimizerG.step()
-            
+
             
             if i % 15 == 0:
                 print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
