@@ -53,12 +53,12 @@ class Generator(nn.Module):
         super(Generator,self).__init__()
         self.nz = nz
         self.pitches = pitches
-        self.filters_number = 256
-        self.filters_number_conditioner = 256
-        self.transpose_filters_number = 512
+        self.filters_number = 128
+        self.filters_number_conditioner = 32
+        self.transpose_filters_number = 160
         
         self.linear0 = LinearLayer(nz, 1024)
-        self.linear1 = LinearLayer(1024,512)
+        self.linear1 = LinearLayer(1024,256)
         
         # Generator transposed convolutions layers
         self.hidden0 = ConvolutionTransposeLayer2d(channels_in=self.transpose_filters_number, channels_out=self.filters_number, kernel=(2,1), stride=2, padding=0)
@@ -87,7 +87,7 @@ class Generator(nn.Module):
         h0 = self.linear0(z)
         h1 = self.linear1(h0)
         
-        h1 = h1.view(batch_size, 256, 2, 1)
+        h1 = h1.view(batch_size, 128, 2, 1)
         h1 = conv_prev_concat(h1, condition_hidden3)
 
         h2 = self.hidden0(h1)
