@@ -111,8 +111,7 @@ class Discriminator(nn.Module):
         self.linear_in = 231
         
         self.hidden0 = ConvolutionLayer2d(channels_in=1, channels_out=24, kernel=(2,128), stride=2, padding=0)
-        self.hidden1 = ConvolutionLayer2d(channels_in=24, channels_out=24, kernel=(3,1), stride=2, padding=0)
-        self.hidden2 = ConvolutionLayer2d(channels_in=24, channels_out=77, kernel=(3,1), stride=2, padding=0)
+        self.hidden1 = ConvolutionLayer2d(channels_in=24, channels_out=77, kernel=(3,1), stride=2, padding=0)
         self.linear = nn.Linear(self.linear_in, 1024)
         self.linear2 = nn.Linear(1024,1)
         self.sigmoid = nn.Sigmoid()
@@ -123,7 +122,6 @@ class Discriminator(nn.Module):
         h0 = self.hidden0(x)
         fm = h0
         h1 = self.hidden1(h0)
-        h1 = self.hidden2(h0)
         h1 = h1.view(batch_size,-1)
         l = self.linear(h1)
         l = self.lrelu(l)
